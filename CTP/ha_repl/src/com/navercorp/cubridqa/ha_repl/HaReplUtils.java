@@ -138,6 +138,7 @@ public class HaReplUtils {
 	}
 
 	private static boolean waitDatabaseReady(SSHConnect ssh, String dbName, String expectedStatus, Log log, int maxTry) throws Exception {
+		boolean enableDebug = CommonUtils.convertBoolean(System.getenv(ConfigParameterConstants.CTP_DEBUG_ENABLE), false); 
 		GeneralScriptInput script = new GeneralScriptInput("cd $CUBRID");
 		script.addCommand("cubrid changemode " + dbName);
 		String result;
@@ -147,6 +148,11 @@ public class HaReplUtils {
 			log.println(result);
 			if (Pattern.matches(side + expectedStatus + side, result)) {
 				return true;
+			}
+			if (enableDebug) {
+				log.println(" **** CUBRID logs START ***");
+				display_cubrid_logs (ssh, dbName, log);
+				log.println(" **** CUBRID logs END ***");
 			}
 			CommonUtils.sleep(1);
 		}
@@ -174,4 +180,16 @@ public class HaReplUtils {
 		return list;
 
 	}
+	
+	private static void display_cubrid_logs (SSHConnect ssh, String dbName, Log log) throws Exception {
+		GeneralScriptInput script = new GeneralScriptInput("cd $CUBRID/log");
+		script.addCommand("cat  *_createdb.err");
+		script.addCommand("cat  *_master.err");
+		script.addCommand("cat  *_changemode.err");
+		script.addCommand("cat  server/" + dbName + "_*.err");
+		String result;
+
+		result = ssh.execute(script);
+		log.println(result);
+	}	
 }
