@@ -75,7 +75,6 @@ public class XstreamHelper {
 	}
 
 	/**
-	 * 转换javabean为xml
 	 * 
 	 * @param obj
 	 * @return
