@@ -36,8 +36,12 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.navercorp.cubridqa.shell.service.ShellService;
+import com.navercorp.cubridqa.common.ConfigParameterConstants;
+import com.navercorp.cubridqa.common.CommonUtils;
 
 public class SSHConnect {
+
+	private static boolean enableDebug = CommonUtils.convertBoolean(System.getenv(ConfigParameterConstants.CTP_DEBUG_ENABLE), false); 
 
 	public final static String SERVICE_TYPE_SSH = "ssh";
 	public final static String SERVICE_TYPE_RMI = "rmi";
@@ -148,6 +152,10 @@ public class SSHConnect {
 
 		int len = 0;
 		while ((len = in.read(b)) > 0) {
+			if (enableDebug) {
+				String byteString = new String (b);
+				System.out.println ("     ++++SSHConnect: " + byteString);
+			}
 			out.write(b, 0, len);
 			if (out.toString().indexOf(ScriptInput.COMP_FLAG) > 0) {
 				break;
