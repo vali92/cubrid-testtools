@@ -41,8 +41,6 @@ import com.navercorp.cubridqa.common.CommonUtils;
 
 public class SSHConnect {
 
-	private static boolean enableDebug = CommonUtils.convertBoolean(System.getenv(ConfigParameterConstants.CTP_DEBUG_ENABLE), false); 
-
 	public final static String SERVICE_TYPE_SSH = "ssh";
 	public final static String SERVICE_TYPE_RMI = "rmi";
 	public final static String SERVICE_TYPE_LOCAL = "local";
@@ -118,6 +116,8 @@ public class SSHConnect {
 
 	public String execute(String scripts, boolean pureWindows) throws Exception {
 		// System.out.println(scripts);
+		boolean enableDebug = CommonUtils.convertBoolean(System.getenv(ConfigParameterConstants.CTP_DEBUG_ENABLE), false); 
+		
 		if (serviceProtocol.equals(SERVICE_TYPE_RMI)) {
 			ShellService srv = null;
 			String url = "rmi://" + host + ":" + port + "/shellService";
