@@ -114,6 +114,7 @@ public class ConfigParameterConstants {
 	public static final String TEST_BUILD_ID = "build_id";
 	public static final String TEST_BUILD_BITS = "build_bits";
 	public static final String TEST_INTERFACE_TYPE = "test_interface_type";
+	public static final String ENABLE_CTP_DEBUG = "enable_ctp_debug";
 
 	// Test result configuration parameters
 	public static final String FEEDBACK_TYPE = "feedback_type";

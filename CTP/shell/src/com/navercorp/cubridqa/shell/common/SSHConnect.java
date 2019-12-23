@@ -36,8 +36,6 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.navercorp.cubridqa.shell.service.ShellService;
-import com.navercorp.cubridqa.common.ConfigParameterConstants;
-import com.navercorp.cubridqa.common.CommonUtils;
 
 public class SSHConnect {
 
@@ -53,6 +51,7 @@ public class SSHConnect {
 	String pwd;
 	String title;
 	String serviceProtocol;
+	boolean enableDebug;
 
 	final int MAX_TRY_TIME = 10;
 
@@ -74,6 +73,7 @@ public class SSHConnect {
 		this.user = user;
 		this.pwd = pwd;
 		this.serviceProtocol = serviceProtocol;
+		this.enableDebug = false;
 	}
 
 	public String toString() {
@@ -116,8 +116,6 @@ public class SSHConnect {
 
 	public String execute(String scripts, boolean pureWindows) throws Exception {
 		// System.out.println(scripts);
-		boolean enableDebug = CommonUtils.convertBoolean(System.getenv(ConfigParameterConstants.CTP_DEBUG_ENABLE), false); 
-		
 		if (serviceProtocol.equals(SERVICE_TYPE_RMI)) {
 			ShellService srv = null;
 			String url = "rmi://" + host + ":" + port + "/shellService";
@@ -152,7 +150,7 @@ public class SSHConnect {
 
 		int len = 0;
 		while ((len = in.read(b)) > 0) {
-			if (enableDebug) {
+			if (this.enableDebug) {
 				String byteString = new String (b);
 				System.out.println ("     ++++SSHConnect: " + byteString);
 			}
@@ -273,4 +271,8 @@ public class SSHConnect {
 	public String getPwd() {
 		return pwd;
 	}
+	
+	public void setEnableDebug(boolean debug) {
+		this.enableDebug = debug;
+	}	
 }
