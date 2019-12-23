@@ -108,6 +108,8 @@ public class HaReplUtils {
 		SSHConnect master = hostManager.getHost("master");
 		master.setEnableDebug (enableDebug);
 		log.println("------------ MASTER : CREATE DATABASE -----------------");
+		log.println("------------ debug mode : " + enableDebug);
+		enableDebug = true;
 
 		String result = master.execute(script);
 		log.println(result);
