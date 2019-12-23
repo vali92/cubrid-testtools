@@ -109,7 +109,6 @@ public class HaReplUtils {
 		master.setEnableDebug (enableDebug);
 		log.println("------------ MASTER : CREATE DATABASE -----------------");
 		log.println("------------ debug mode : " + enableDebug);
-		enableDebug = true;
 
 		String result = master.execute(script);
 		log.println(result);
@@ -189,10 +188,10 @@ public class HaReplUtils {
 	
 	private static void display_cubrid_logs (SSHConnect ssh, String dbName, Log log) throws Exception {
 		GeneralScriptInput script = new GeneralScriptInput("cd $CUBRID/log");
-		script.addCommand("cat  *_createdb.err");
-		script.addCommand("cat  *_master.err");
-		script.addCommand("cat  *_changemode.err");
-		script.addCommand("cat  server/" + dbName + "_*.err");
+		script.addCommand("tail -n 1000 -v *_createdb.err");
+		script.addCommand("tail -n 1000 -v *_master.err");
+		script.addCommand("tail -n 1000 -v *_changemode.err");
+		script.addCommand("tail -n 1000 -v server/" + dbName + "_*.err");
 		String result;
 
 		result = ssh.execute(script);
