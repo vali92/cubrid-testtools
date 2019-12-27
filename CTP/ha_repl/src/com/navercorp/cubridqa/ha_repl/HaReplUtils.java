@@ -107,6 +107,7 @@ public class HaReplUtils {
 
 		SSHConnect master = hostManager.getHost("master");
 		master.setEnableDebug (enableDebug);
+		master.setTimeout (10 * 1000);
 		log.println("------------ MASTER : CREATE DATABASE -----------------");
 		log.println("------------ debug mode : " + enableDebug);
 
@@ -124,6 +125,7 @@ public class HaReplUtils {
 		for (SSHConnect ssh : slaveAndReplicaList) {
 			log.println("------------ SLAVE/REPLICA : CREATE DATABASE -----------------");
 			ssh.setEnableDebug (enableDebug);
+			ssh.setTimeout (10 * 1000);
 			result = ssh.execute(script);
 			log.println(result);
 			System.out.println(result);
@@ -188,7 +190,7 @@ public class HaReplUtils {
 	
 	private static void display_cubrid_logs (SSHConnect ssh, String dbName, Log log) throws Exception {
 		GeneralScriptInput script = new GeneralScriptInput("cd $CUBRID/log");
-		script.addCommand("tail -n 1000 -v *_createdb.err");
+		script.addCommand("tail -n 100 -v *_createdb.err");
 		script.addCommand("tail -n 1000 -v *_master.err");
 		script.addCommand("tail -n 1000 -v *_changemode.err");
 		script.addCommand("tail -n 1000 -v server/" + dbName + "_*.err");

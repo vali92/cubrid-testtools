@@ -52,6 +52,8 @@ public class SSHConnect {
 	String title;
 	String serviceProtocol;
 	boolean enableDebug;
+	
+	long outputTimeout;
 
 	final int MAX_TRY_TIME = 10;
 
@@ -74,6 +76,7 @@ public class SSHConnect {
 		this.pwd = pwd;
 		this.serviceProtocol = serviceProtocol;
 		this.enableDebug = false;
+		outputTimeout = 60 * 1000;
 	}
 
 	public String toString() {
@@ -115,7 +118,7 @@ public class SSHConnect {
 	}
 
 	public String execute(String scripts, boolean pureWindows) throws Exception {
-		// System.out.println(scripts);
+		System.out.println("     ++++SSHConnect: execute enableDebug:" + enableDebug);
 		if (serviceProtocol.equals(SERVICE_TYPE_RMI)) {
 			ShellService srv = null;
 			String url = "rmi://" + host + ":" + port + "/shellService";
@@ -149,15 +152,52 @@ public class SSHConnect {
 		exec.connect();
 
 		int len = 0;
-		while ((len = in.read(b)) > 0) {
+		int available = 0;
+		
+		while (true) {
+			
+			long startTime = System.currentTimeMillis();
+
+			while ((available = in.available ()) == 0) {
+				if (System.currentTimeMillis () - startTime > outputTimeout) {
+					if (this.enableDebug) {
+						System.out.println ("     ++++SSHConnect: ChannelExec timeout !");
+					}
+					break;
+				}
+				if (exec.isClosed ()) {
+					if (this.enableDebug) {
+						System.out.println ("     ++++SSHConnect: ChannelExec closed !");
+					}
+					break;
+				}
+				Thread.sleep(50);
+			}
+			len = in.read(b);
+			
+			if (len <= 0)
+			{
+				if (this.enableDebug) {
+					System.out.println ("     ++++SSHConnect: read len =" + len);
+				}
+				break;
+			}
 			if (this.enableDebug) {
 				String byteString = new String (b);
-				System.out.println ("     ++++SSHConnect: " + byteString);
+				System.out.println ("     ++++SSHConnect: available bytes: " + available + " out : " + byteString);
 			}
 			out.write(b, 0, len);
 			if (out.toString().indexOf(ScriptInput.COMP_FLAG) > 0) {
 				break;
 			}
+			
+			if (exec.isClosed ()) {
+				if (this.enableDebug) {
+					System.out.println ("     ++++SSHConnect: ChannelExec closed !");
+				}
+				break;
+			}
+			
 		}
 
 		exec.disconnect();
@@ -274,5 +314,9 @@ public class SSHConnect {
 	
 	public void setEnableDebug(boolean debug) {
 		this.enableDebug = debug;
-	}	
+	}
+	
+	public void setTimeout (long timeout) {
+		this.outputTimeout = timeout;
+	}
 }
