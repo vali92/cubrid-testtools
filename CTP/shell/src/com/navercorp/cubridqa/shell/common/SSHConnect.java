@@ -190,7 +190,7 @@ public class SSHConnect {
 			}
 			if (this.enableDebug) {
 				String byteString = new String (b);
-				System.out.println ("     ++++SSHConnect: available bytes: " + available + " out : " + byteString);
+				System.out.println ("     ++++SSHConnect: available bytes: " + available + " read :" + len);
 			}
 			out.write(b, 0, len);
 			if (out.toString().indexOf(ScriptInput.COMP_FLAG) > 0) {
