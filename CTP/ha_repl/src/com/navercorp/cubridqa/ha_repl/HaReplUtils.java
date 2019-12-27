@@ -107,7 +107,7 @@ public class HaReplUtils {
 
 		SSHConnect master = hostManager.getHost("master");
 		master.setEnableDebug (enableDebug);
-		master.setTimeout (10 * 1000);
+		master.setTimeout (50 * 1000);
 		log.println("------------ MASTER : CREATE DATABASE -----------------");
 		log.println("------------ debug mode : " + enableDebug);
 
@@ -125,7 +125,7 @@ public class HaReplUtils {
 		for (SSHConnect ssh : slaveAndReplicaList) {
 			log.println("------------ SLAVE/REPLICA : CREATE DATABASE -----------------");
 			ssh.setEnableDebug (enableDebug);
-			ssh.setTimeout (10 * 1000);
+			ssh.setTimeout (50 * 1000);
 			result = ssh.execute(script);
 			log.println(result);
 			System.out.println(result);
@@ -151,6 +151,7 @@ public class HaReplUtils {
 		String result;
 		String side = "[\\s\\S]*";
 		while (maxTry-- > 0) {
+			ssh.setTimeout (20 * 1000);
 			result = ssh.execute(script);
 			log.println(result);
 			if (Pattern.matches(side + expectedStatus + side, result)) {

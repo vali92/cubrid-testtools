@@ -76,7 +76,7 @@ public class SSHConnect {
 		this.pwd = pwd;
 		this.serviceProtocol = serviceProtocol;
 		this.enableDebug = false;
-		outputTimeout = 60 * 1000;
+		outputTimeout = 100 * 1000;
 	}
 
 	public String toString() {
