@@ -157,21 +157,27 @@ public class SSHConnect {
 		while (true) {
 			
 			long startTime = System.currentTimeMillis();
+			boolean stop = false;
 
 			while ((available = in.available ()) == 0) {
 				if (System.currentTimeMillis () - startTime > outputTimeout) {
 					if (this.enableDebug) {
 						System.out.println ("     ++++SSHConnect: ChannelExec timeout !");
 					}
+					stop = true;
 					break;
 				}
 				if (exec.isClosed ()) {
 					if (this.enableDebug) {
 						System.out.println ("     ++++SSHConnect: ChannelExec closed !");
 					}
+					stop = true;
 					break;
 				}
 				Thread.sleep(50);
+			}
+			if (stop) {
+				break;
 			}
 			len = in.read(b);
 			
