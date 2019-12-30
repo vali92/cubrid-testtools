@@ -65,14 +65,23 @@ public class HaReplUtils {
 		boolean enableDebug = CommonUtils.convertBoolean(System.getenv(ConfigParameterConstants.CTP_DEBUG_ENABLE), false)
 		                      || CommonUtils.convertBoolean(context.getProperty(ConfigParameterConstants.ENABLE_CTP_DEBUG, "false")); 
 
-		log.println("------------ CLEANUP processes and deletedb on all nodes -----------------");
+		log.println("------------ CLEANUP processes and deletedb on all nodes; hard delete : " + context.shouldHardDeleteOnRebuildDB ());
 		StringBuffer s = new StringBuffer();
 		s.append(
-				"pkill -u $USER cub;ps -u $USER | grep cub | awk '{print $1}' | grep -v PID | xargs -i  kill -9 {}; ipcs | grep $USER | awk '{print $2}' | xargs -i ipcrm -m {};cubrid deletedb "
-						+ hostManager.getTestDb()).append(";");
-		s.append("cd ${CUBRID}/databases/").append(";");
-		if (CommonUtils.isEmpty(hostManager.getTestDb()) == false) {
-			s.append("rm -rf ").append(hostManager.getTestDb().trim() + "*").append(";");
+				"pkill -u $USER cub;ps -u $USER | grep cub | awk '{print $1}' | grep -v PID | xargs -i  kill -9 {}; ipcs | grep $USER | awk '{print $2}' | xargs -i ipcrm -m {};");
+		
+		if (context.shouldHardDeleteOnRebuildDB ()) {
+			s.append("rm -rf ${CUBRID}/databases/*").append(";");
+			s.append("touch ${CUBRID}/databases/databases.txt").append(";");
+			s.append("rm -rf ${CUBRID}/log/*").append(";");
+		}
+		else {
+			// soft delete DB
+			s.append ("cubrid deletedb " + hostManager.getTestDb()).append(";");
+			s.append("cd ${CUBRID}/databases/").append(";");
+			if (CommonUtils.isEmpty(hostManager.getTestDb()) == false) {
+				s.append("rm -rf ").append(hostManager.getTestDb().trim() + "*").append(";");
+			}
 		}
 		s.append("cd ~;");
 

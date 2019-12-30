@@ -62,6 +62,7 @@ public class Context {
 	private int haSyncFailureResolveMode;
 	private boolean updateStatsOnCatalogClasses = false;
 	private boolean cleanupCUBRIDlogsBeforeTest = false;
+	private boolean hardDeleteOnRebuildDB = false;
 	private int stopAfterCoreCount;
 	private int stopAfterFailedCount;
 	
@@ -119,7 +120,7 @@ public class Context {
 		
 		this.updateStatsOnCatalogClasses = CommonUtils.convertBoolean(getProperty(ConfigParameterConstants.HA_UPDATE_STATISTICS_ON_CATALOG_CLASSES_YN, "FALSE").trim());
 		this.cleanupCUBRIDlogsBeforeTest = CommonUtils.convertBoolean(getProperty(ConfigParameterConstants.CLEANUP_CUBRID_LOGS_BEFORE_TEST_YN, "FALSE").trim());
-		
+		this.hardDeleteOnRebuildDB = CommonUtils.convertBoolean(getProperty(ConfigParameterConstants.HA_HARD_DELETE_ON_REBUILD_DATABASE_YN, "TRUE").trim());
 		try {
 			stopAfterCoreCount = Integer.parseInt(getProperty(ConfigParameterConstants.STOP_AFTER_CORE_COUNT));
 		} catch (Exception e) {
@@ -132,7 +133,7 @@ public class Context {
 		} catch (Exception e) {
 			// don't stop
 			stopAfterFailedCount = 1000000;
-		}		
+		}
 	}
 
 	public ArrayList<String> getTestEnvList() {
@@ -313,6 +314,10 @@ public class Context {
 	
 	public boolean shouldCleanupCUBRIDlogsBeforeTest () {
 		return cleanupCUBRIDlogsBeforeTest;
+	}
+	
+	public boolean shouldHardDeleteOnRebuildDB () {
+		return hardDeleteOnRebuildDB;
 	}
 	
 	public boolean shouldStopForCoreCount () {

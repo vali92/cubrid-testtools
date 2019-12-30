@@ -74,10 +74,12 @@ public class ConfigParameterConstants {
 	public static final String HA_SYNC_DETECT_TIMEOUT_IN_SECS = "ha_sync_detect_timeout_in_secs";
 	public static final String HA_SYNC_FAILURE_RESOLVE_MODE = "ha_sync_failure_resolve_mode";
 	public static final String HA_UPDATE_STATISTICS_ON_CATALOG_CLASSES_YN = "update_statistics_on_catalog_classes_yn";
+	public static final String HA_HARD_DELETE_ON_REBUILD_DATABASE_YN = "ha_hard_delete_on_rebuild_database_yn";
 	// TODO : this should be implemented for all tests
 	public static final String CLEANUP_CUBRID_LOGS_BEFORE_TEST_YN = "cleanup_cubrid_logs_before_test_yn";
 	public static final String STOP_AFTER_CORE_COUNT = "stop_after_core_count";
 	public static final String STOP_AFTER_FAILED_COUNT = "stop_after_failed_count";
+	
 
 	// Test tool configuration parameters
 	public static final String BACKUP_CORE_FILE_YES_OR_NO = "backup_core_file_yn";
