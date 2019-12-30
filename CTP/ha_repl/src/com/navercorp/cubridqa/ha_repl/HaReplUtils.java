@@ -38,19 +38,24 @@ public class HaReplUtils {
 
 	private static int MAX_TRY_WAIT_STATUS = 180;
 
-	public static void rebuildFinalDatabase(Context context, InstanceManager hostManager, Log log, String... params) {
+	public static boolean rebuildFinalDatabase(Context context, InstanceManager hostManager, Log log, String... params) {
 		int maxTry = 5;
 		int loop = 1;
+		boolean success = false;
 		while (maxTry-- > 0) {
 			try {
+				success = true;
 				log.println("DATABASE IS DIRTY. REBUILD ... try " + loop);
 				__rebuildDatabase(context, hostManager, log, params);
 				break;
 			} catch (Exception e) {
 				log.println("Rebuild DB Error: " + e.getMessage());
+				success = false;
 			}
 			loop ++;
 		}
+		
+		return success;
 	}
 
 	private static void __rebuildDatabase(Context context, InstanceManager hostManager, Log log, String... params) throws Exception {
@@ -60,6 +65,7 @@ public class HaReplUtils {
 		boolean enableDebug = CommonUtils.convertBoolean(System.getenv(ConfigParameterConstants.CTP_DEBUG_ENABLE), false)
 		                      || CommonUtils.convertBoolean(context.getProperty(ConfigParameterConstants.ENABLE_CTP_DEBUG, "false")); 
 
+		log.println("------------ CLEANUP processes and deletedb on all nodes -----------------");
 		StringBuffer s = new StringBuffer();
 		s.append(
 				"pkill -u $USER cub;ps -u $USER | grep cub | awk '{print $1}' | grep -v PID | xargs -i  kill -9 {}; ipcs | grep $USER | awk '{print $2}' | xargs -i ipcrm -m {};cubrid deletedb "
@@ -73,6 +79,7 @@ public class HaReplUtils {
 		GeneralScriptInput script = new GeneralScriptInput(s.toString());
 		for (SSHConnect ssh : allHosts) {
 			ssh.execute(script);
+			log.println("------------ CLEANUP DONE for host : " + ssh.getHost ());
 		}
 
 		s = new StringBuffer();
@@ -109,7 +116,6 @@ public class HaReplUtils {
 		master.setEnableDebug (enableDebug);
 		master.setTimeout (50 * 1000);
 		log.println("------------ MASTER : CREATE DATABASE -----------------");
-		log.println("------------ debug mode : " + enableDebug);
 
 		String result = master.execute(script);
 		log.println(result);
@@ -150,6 +156,7 @@ public class HaReplUtils {
 		script.addCommand("cubrid changemode " + dbName);
 		String result;
 		String side = "[\\s\\S]*";
+		log.println(" **** waitDatabaseReady for host:  " + ssh.getHost () + " expectet status : " + expectedStatus);
 		while (maxTry-- > 0) {
 			ssh.setTimeout (20 * 1000);
 			result = ssh.execute(script);
@@ -157,13 +164,18 @@ public class HaReplUtils {
 			if (Pattern.matches(side + expectedStatus + side, result)) {
 				return true;
 			}
-			if (enableDebug) {
-				log.println(" **** CUBRID logs START ***");
-				display_cubrid_logs (ssh, dbName, log);
-				log.println(" **** CUBRID logs END ***");
+			if (enableDebug && maxTry % 5 == 0) {
+				log.println(" **** waitDatabaseReady remaining wait : " + maxTry);
 			}
 			CommonUtils.sleep(1);
 		}
+			
+		if (enableDebug) {
+			log.println(" **** waitDatabaseReady FAILED  ***");
+			log.println(" **** CUBRID logs START ***");
+			display_cubrid_logs (ssh, dbName, log);
+			log.println(" **** CUBRID logs END ***");
+		}		
 		return false;
 	}
 

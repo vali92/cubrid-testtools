@@ -99,15 +99,22 @@ public class Test {
 				haveLeapInCurrTestCase = false;
 			}
 
+            boolean rebuild_db_success = true;
 			if (isFinalDatabaseDirty() || haveLeapInCurrTestCase != haveLeapInLastDB) {
 				if (haveLeapInCurrTestCase != haveLeapInLastDB) {
 					mlog.println("ERROR: found different tz_leap_second_support (db: " + haveLeapInLastDB + ", case: " + haveLeapInCurrTestCase + ")");
 				}
-				HaReplUtils.rebuildFinalDatabase(context, hostManager, mlog, haveLeapInCurrTestCase ? "tz_leap_second_support=yes" : "");
+				rebuild_db_success = HaReplUtils.rebuildFinalDatabase(context, hostManager, mlog, haveLeapInCurrTestCase ? "tz_leap_second_support=yes" : "");
 			} else {
 				mlog.println("Needn't rebuild database.");
 			}
 
+			if (rebuild_db_success == false) {
+				mlog.println("Failed to rebuild database. Abort all tests.");
+				// Make a snapshot of all hosts
+				ArrayList<String> ignoredFailures = checkCoresAndErrors(true, true);
+				break;
+			}
 			haveLeapInLastDB = haveLeapInCurrTestCase;
 			rebuildFinalFlagTable();
 
@@ -359,7 +366,7 @@ public class Test {
 
 	private boolean verifyResults(String logFilename, boolean backupYn) {
 		
-		ArrayList<String> failures = checkCoresAndErrors(backupYn);
+		ArrayList<String> failures = checkCoresAndErrors(backupYn, false);
 		if (failures != null && failures.size() > 0) {
 			this.hasCore = true;
 			for (String f : failures) {
@@ -444,7 +451,7 @@ public class Test {
 		return dir;
 	}
 
-	private ArrayList<String> checkCoresAndErrors(boolean backupYn) {
+	private ArrayList<String> checkCoresAndErrors(boolean backupYn, boolean forceBackup) {
 		ArrayList<SSHConnect> allNodeList = hostManager.getAllNodeList();
 		String result;
 		String hitHost;
@@ -482,6 +489,10 @@ public class Test {
 					} else {
 						error = error + Constants.LINE_SEPARATOR + "FOUND FATAL ERROR on host " + ssh.getUser() + "@" + hitHost;
 					}
+				}
+				
+				if (forceBackup) {
+					error = error + "\nFORCED BACKUP (maybe DB REBUILD FAILURE) on host " + ssh.getUser() + "@" + hitHost;
 				}
 
 				if (error == null) {
