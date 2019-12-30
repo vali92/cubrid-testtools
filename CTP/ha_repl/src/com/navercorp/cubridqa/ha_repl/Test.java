@@ -120,6 +120,16 @@ public class Test {
 
 			executeTest(new File(filename));
 			this.finishedLog.println(filename);
+			
+			if (context.shouldStopForCoreCount ()) {
+				mlog.println("Too many core files. Abort all tests.");
+				break;
+			}
+
+			if (context.shouldStopForFailedCount ()) {
+				mlog.println("Too many failed tests. Abort all tests.");
+				break;
+			}
 		}
 	}
 
@@ -171,7 +181,10 @@ public class Test {
 		log("===========================================================================================");
 		long startTime = System.currentTimeMillis();
 
-		clearDatabaseLog();
+		if (context.shouldCleanupCUBRIDlogsBeforeTest ()) {
+			clearDatabaseLog();
+		}
+
 		this.hostManager.resetJdbcConns();
 
 		TestReader tr = null;
@@ -274,6 +287,9 @@ public class Test {
 		boolean backupYn = failResolveMode == Constants.HA_SYNC_FAILURE_RESOLVE_MODE_CONTINUE;
 
 		boolean testcasePassed = verifyResults(logFilename, backupYn);  //hasCore has been updated
+		if (testcasePassed) {
+			context.incFailedTest ();
+		}
 
 		if (context.isFailureBackup() && hasCore == false && testcasePassed == false) {
 			String backupDir = collectMoreInfoWhenFail();
@@ -474,6 +490,8 @@ public class Test {
 				if (!result.trim().equals("0")) {
 					cat = "CORE";
 					error = "FOUND CORE FILE on host " + ssh.getUser() + "@" + hitHost;
+					
+					context.incCoreFound ();
 					
 					checkScript = new GeneralScriptInput("find $CUBRID -name \"core.*\" -exec analyzer.sh {} \\;");
 					coreStack = ssh.execute(checkScript);

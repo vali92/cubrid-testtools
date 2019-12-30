@@ -61,12 +61,20 @@ public class Context {
 	private int haSyncDetectTimeoutInMs;
 	private int haSyncFailureResolveMode;
 	private boolean updateStatsOnCatalogClasses = false;
+	private boolean cleanupCUBRIDlogsBeforeTest = false;
+	private int stopAfterCoreCount;
+	private int stopAfterFailedCount;
+	
+	private int coreCount;
+	private int failCount;
 
 	public Context(String filename) throws IOException {
 		this.filename = filename;
 		reload();
 		setLogDir("ha_repl");
 		this.scenario = CommonUtils.translateVariable(getProperty(ConfigParameterConstants.SCENARIO, "").trim());
+		coreCount = 0;
+		failCount = 0;
 	}
 
 	public void reload() throws IOException {
@@ -110,6 +118,21 @@ public class Context {
 		}
 		
 		this.updateStatsOnCatalogClasses = CommonUtils.convertBoolean(getProperty(ConfigParameterConstants.HA_UPDATE_STATISTICS_ON_CATALOG_CLASSES_YN, "FALSE").trim());
+		this.cleanupCUBRIDlogsBeforeTest = CommonUtils.convertBoolean(getProperty(ConfigParameterConstants.CLEANUP_CUBRID_LOGS_BEFORE_TEST_YN, "FALSE").trim());
+		
+		try {
+			stopAfterCoreCount = Integer.parseInt(getProperty(ConfigParameterConstants.STOP_AFTER_CORE_COUNT));
+		} catch (Exception e) {
+			// don't stop
+			stopAfterCoreCount = 1000000;
+		}
+		
+		try {
+			stopAfterFailedCount = Integer.parseInt(getProperty(ConfigParameterConstants.STOP_AFTER_FAILED_COUNT));
+		} catch (Exception e) {
+			// don't stop
+			stopAfterFailedCount = 1000000;
+		}		
 	}
 
 	public ArrayList<String> getTestEnvList() {
@@ -287,4 +310,24 @@ public class Context {
 	public boolean isUpdateStatsOnCatalogClasses() {
 		return this.updateStatsOnCatalogClasses;
 	}
+	
+	public boolean shouldCleanupCUBRIDlogsBeforeTest () {
+		return cleanupCUBRIDlogsBeforeTest;
+	}
+	
+	public boolean shouldStopForCoreCount () {
+		return coreCount >= stopAfterCoreCount;
+	}
+	
+	public boolean shouldStopForFailedCount () {
+		return failCount >= stopAfterFailedCount;
+	}
+	
+	public void incCoreFound () {
+		coreCount++;
+	}
+	
+	public void incFailedTest () {
+		failCount++;
+	}	
 }
