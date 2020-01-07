@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 
 import com.navercorp.cubridqa.common.CommonUtils;
 import com.navercorp.cubridqa.common.ConfigParameterConstants;
+import com.navercorp.cubridqa.ha_repl.common.Constants;
 import com.navercorp.cubridqa.common.Log;
 import com.navercorp.cubridqa.shell.common.GeneralScriptInput;
 import com.navercorp.cubridqa.shell.common.SSHConnect;
@@ -37,6 +38,53 @@ import com.navercorp.cubridqa.shell.common.SSHConnect;
 public class HaReplUtils {
 
 	private static int MAX_TRY_WAIT_STATUS = 180;
+	
+	private static String getResultId(int taskId, String hitHost, String cat, String buildId) {
+		return cat.toUpperCase().trim() + "_" + buildId + "_" + CommonUtils.dateToString(new java.util.Date(), Constants.FM_DATE_SNAPSHOT) + "_" + taskId + ((hitHost == null) ? "" : "_" + hitHost);
+	}
+	
+	private static GeneralScriptInput getBackupScripts(String resultId, String testCase) {
+
+		GeneralScriptInput script = new GeneralScriptInput("");
+		script.addCommand("backup_dir_root=" + Constants.DIR_ERROR_BACKUP);
+		script.addCommand("mkdir -p ${backup_dir_root}");
+		script.addCommand("freadme=${backup_dir_root}/readme.txt ");
+		script.addCommand("echo > ${freadme}");
+		script.addCommand("echo 1.TEST CASE: " + testCase + " > $freadme");
+		script.addCommand("echo 2.CUBRID VERSION: `cubrid_rel | grep CUBRID` >> $freadme");
+		script.addCommand("echo 3.TEST DATE: `date` >> $freadme");
+		script.addCommand("echo 4.ENVIRONMENT: >> $freadme");
+		script.addCommand("set >> $freadme");
+		script.addCommand("echo 5.PROCESSES >> $freadme");
+		script.addCommand("ps -ef >> $freadme");
+		script.addCommand("echo 6.CURRENT USER PROCESSES >> $freadme");
+		script.addCommand("ps -u $USER -f >> $freadme");
+		script.addCommand("echo 7.IPCS >> $freadme");
+		script.addCommand("ipcs >> $freadme");
+		script.addCommand("echo 8.DISK STATUS >> $freadme");
+		script.addCommand("df >> $freadme");
+		script.addCommand("echo 9.LOGGED >> $freadme");
+		script.addCommand("who >> $freadme");
+		script.addCommand("cd ${backup_dir_root}");
+		script.addCommand("tar czvf " + resultId + ".tar.gz ../CUBRID/log readme.txt");
+		return script;
+	}
+	
+	private static void backupLogs (Context context, SSHConnect ssh, Log log) {
+		log.println("------------ Backup logs for host : " + ssh.getHost ());
+		String cat = "START_FAIL_" + context.getStartDBFailCount ();
+		String hitHost = ssh.getHost().trim();
+		String resultId = getResultId(context.getFeedback().getTaskId(), hitHost, cat, context.getBuildId());
+		
+		try {
+			String result = ssh.execute(getBackupScripts(resultId, "STARTDB_FAIL"));
+			log.println("Execute environement backup: " + cat);
+			log.println(result);
+		}
+		catch (Exception e) {
+			log.println("fail to check error: " + e.getMessage() + " in " + ssh.toString());
+		}
+	}
 
 	public static boolean rebuildFinalDatabase(Context context, InstanceManager hostManager, Log log, String... params) {
 		int maxTry = 5;
@@ -50,6 +98,7 @@ public class HaReplUtils {
 				break;
 			} catch (Exception e) {
 				log.println("Rebuild DB Error: " + e.getMessage());
+				context.incStartDBFailCount ();
 				success = false;
 			}
 			loop ++;
@@ -63,7 +112,7 @@ public class HaReplUtils {
 		ArrayList<SSHConnect> allHosts = hostManager.getAllNodeList();
 		
 		boolean enableDebug = CommonUtils.convertBoolean(System.getenv(ConfigParameterConstants.CTP_DEBUG_ENABLE), false)
-		                      || CommonUtils.convertBoolean(context.getProperty(ConfigParameterConstants.ENABLE_CTP_DEBUG, "false")); 
+		                      || CommonUtils.convertBoolean(context.getProperty(ConfigParameterConstants.ENABLE_CTP_DEBUG, "false"));
 
 		log.println("------------ CLEANUP processes and deletedb on all nodes; hard delete : " + context.shouldHardDeleteOnRebuildDB ());
 		StringBuffer s = new StringBuffer();
@@ -87,6 +136,9 @@ public class HaReplUtils {
 
 		GeneralScriptInput script = new GeneralScriptInput(s.toString());
 		for (SSHConnect ssh : allHosts) {
+			if (context.getStartDBFailCount () > 0) {
+				backupLogs (context, ssh, log);
+			}
 			ssh.execute(script);
 			log.println("------------ CLEANUP DONE for host : " + ssh.getHost ());
 		}
@@ -220,5 +272,5 @@ public class HaReplUtils {
 
 		result = ssh.execute(script);
 		log.println(result);
-	}	
+	}
 }

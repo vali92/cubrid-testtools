@@ -68,6 +68,7 @@ public class Context {
 	
 	private int coreCount;
 	private int failCount;
+	private int startDBFailCount;
 
 	public Context(String filename) throws IOException {
 		this.filename = filename;
@@ -76,6 +77,7 @@ public class Context {
 		this.scenario = CommonUtils.translateVariable(getProperty(ConfigParameterConstants.SCENARIO, "").trim());
 		coreCount = 0;
 		failCount = 0;
+		startDBFailCount = 0;
 	}
 
 	public void reload() throws IOException {
@@ -334,5 +336,14 @@ public class Context {
 	
 	public void incFailedTest () {
 		failCount++;
-	}	
+	}
+
+	public void incStartDBFailCount () {
+		startDBFailCount++;
+	}
+	
+	public int getStartDBFailCount () {
+		return startDBFailCount;
+	}
+	
 }
