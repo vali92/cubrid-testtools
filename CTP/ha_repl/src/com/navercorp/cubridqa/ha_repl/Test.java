@@ -118,6 +118,7 @@ public class Test {
 					mlog.println("Exception caught : " + e.getMessage());
 				}
 				
+				mlog.println("Abort all tests");
 				break;
 			}
 			haveLeapInLastDB = haveLeapInCurrTestCase;
@@ -143,9 +144,11 @@ public class Test {
 	}
 
 	public void close() {
+		System.out.println(" ++ Test.close");
 		this.finishedLog.close();
 		this.mlog.close();
 		this.hostManager.close();
+		System.out.println(" ++ Test.close done");
 	}
 
 	private void executeTest(File f) {

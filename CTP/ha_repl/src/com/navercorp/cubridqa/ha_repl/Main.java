@@ -175,6 +175,7 @@ public class Main {
 				public void run() {
 					try {
 						test.runAll();
+						System.out.println(" ++ concurrentTest finished");
 					} catch (Exception e) {
 						e.printStackTrace();
 					} finally {

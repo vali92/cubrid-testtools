@@ -233,9 +233,9 @@ public class HaReplUtils {
 			
 		if (enableDebug) {
 			log.println(" **** waitDatabaseReady FAILED  ***");
-			log.println(" **** CUBRID logs START ***");
-			display_cubrid_logs (ssh, dbName, log);
-			log.println(" **** CUBRID logs END ***");
+			//log.println(" **** CUBRID logs START ***");
+			//display_cubrid_logs (ssh, dbName, log);
+			//log.println(" **** CUBRID logs END ***");
 		}		
 		return false;
 	}
