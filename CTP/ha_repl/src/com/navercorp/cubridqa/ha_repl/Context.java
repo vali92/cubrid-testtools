@@ -69,6 +69,9 @@ public class Context {
 	private int coreCount;
 	private int failCount;
 	private int startDBFailCount;
+	
+	private int haCreatedbSSHFeedbackTimeout;
+	private int haWaitdbSSHFeedbackTimeout;
 
 	public Context(String filename) throws IOException {
 		this.filename = filename;
@@ -78,6 +81,9 @@ public class Context {
 		coreCount = 0;
 		failCount = 0;
 		startDBFailCount = 0;
+		
+		haCreatedbSSHFeedbackTimeout = 100 * 1000;
+		haWaitdbSSHFeedbackTimeout = 100 * 1000;
 	}
 
 	public void reload() throws IOException {
@@ -136,6 +142,20 @@ public class Context {
 			// don't stop
 			stopAfterFailedCount = 1000000;
 		}
+		
+		try {
+			haCreatedbSSHFeedbackTimeout = Integer.parseInt(getProperty(ConfigParameterConstants.HA_CREATEDB_SSH_FEEDBACK_TIMEOUT));
+		} catch (Exception e) {
+			// don't stop
+			haCreatedbSSHFeedbackTimeout = 100 * 1000;
+		}
+		
+		try {
+			haWaitdbSSHFeedbackTimeout = Integer.parseInt(getProperty(ConfigParameterConstants.HA_WAITDB_SSH_FEEDBACK_TIMEOUT));
+		} catch (Exception e) {
+			// don't stop
+			haWaitdbSSHFeedbackTimeout = 100 * 1000;
+		}		
 	}
 
 	public ArrayList<String> getTestEnvList() {
@@ -345,5 +365,13 @@ public class Context {
 	public int getStartDBFailCount () {
 		return startDBFailCount;
 	}
+	
+	public int getHaCreatedbSSHFeedbackTimeout () {
+		return haCreatedbSSHFeedbackTimeout;
+	}
+	
+	public int getHaWaitdbSSHFeedbackTimeout () {
+		return haWaitdbSSHFeedbackTimeout;
+	}	
 	
 }

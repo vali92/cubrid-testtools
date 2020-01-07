@@ -113,6 +113,9 @@ public class HaReplUtils {
 		
 		boolean enableDebug = CommonUtils.convertBoolean(System.getenv(ConfigParameterConstants.CTP_DEBUG_ENABLE), false)
 		                      || CommonUtils.convertBoolean(context.getProperty(ConfigParameterConstants.ENABLE_CTP_DEBUG, "false"));
+		
+		int haCreatedbSSHFeedbackTimeout = context.getHaCreatedbSSHFeedbackTimeout ();
+		int haWaitdbSSHFeedbackTimeout = context.getHaWaitdbSSHFeedbackTimeout ();
 
 		log.println("------------ CLEANUP processes and deletedb on all nodes; hard delete : " + context.shouldHardDeleteOnRebuildDB ());
 		StringBuffer s = new StringBuffer();
@@ -175,7 +178,7 @@ public class HaReplUtils {
 
 		SSHConnect master = hostManager.getHost("master");
 		master.setEnableDebug (enableDebug);
-		master.setTimeout (50 * 1000);
+		master.setTimeout (haCreatedbSSHFeedbackTimeout);
 		log.println("------------ MASTER : CREATE DATABASE -----------------");
 
 		String result = master.execute(script);
@@ -184,7 +187,7 @@ public class HaReplUtils {
 		if (result.indexOf("fail") != -1) {
 			throw new Exception("fail to create on master.");
 		}
-		boolean succ = waitDatabaseReady(master, hostManager.getTestDb(), "(to-be-active|is active)", log, MAX_TRY_WAIT_STATUS, enableDebug);
+		boolean succ = waitDatabaseReady(master, hostManager.getTestDb(), "(to-be-active|is active)", log, MAX_TRY_WAIT_STATUS, enableDebug, haWaitdbSSHFeedbackTimeout);
 		if (!succ)
 			throw new Exception("timeout when wait 'to-be-active' or 'is active' in master");
 
@@ -192,19 +195,19 @@ public class HaReplUtils {
 		for (SSHConnect ssh : slaveAndReplicaList) {
 			log.println("------------ SLAVE/REPLICA : CREATE DATABASE -----------------");
 			ssh.setEnableDebug (enableDebug);
-			ssh.setTimeout (50 * 1000);
+			ssh.setTimeout (haCreatedbSSHFeedbackTimeout);
 			result = ssh.execute(script);
 			log.println(result);
 			System.out.println(result);
 			if (result.indexOf("fail") != -1) {
 				throw new Exception("fail to create on slave/replica.");
 			}
-			succ = waitDatabaseReady(ssh, hostManager.getTestDb(), "is standby", log, MAX_TRY_WAIT_STATUS, enableDebug);
+			succ = waitDatabaseReady(ssh, hostManager.getTestDb(), "is standby", log, MAX_TRY_WAIT_STATUS, enableDebug, haWaitdbSSHFeedbackTimeout);
 			if (!succ)
 				throw new Exception("timeout when wait standby in slave/replica");
 		}
 		log.println("------------ MASTER : WAIT ACTIVE -----------------");
-		succ = waitDatabaseReady(master, hostManager.getTestDb(), "is active", log, MAX_TRY_WAIT_STATUS, enableDebug);
+		succ = waitDatabaseReady(master, hostManager.getTestDb(), "is active", log, MAX_TRY_WAIT_STATUS, enableDebug, haWaitdbSSHFeedbackTimeout);
 		if (!succ)
 			throw new Exception("timout when wait active in master");
 
@@ -212,14 +215,14 @@ public class HaReplUtils {
 		log.println("REBUILD DONE");
 	}
 
-	private static boolean waitDatabaseReady(SSHConnect ssh, String dbName, String expectedStatus, Log log, int maxTry, boolean enableDebug) throws Exception {
+	private static boolean waitDatabaseReady(SSHConnect ssh, String dbName, String expectedStatus, Log log, int maxTry, boolean enableDebug, int ssh_feedback_timeout) throws Exception {
 		GeneralScriptInput script = new GeneralScriptInput("cd $CUBRID");
 		script.addCommand("cubrid changemode " + dbName);
 		String result;
 		String side = "[\\s\\S]*";
 		log.println(" **** waitDatabaseReady for host:  " + ssh.getHost () + " expectet status : " + expectedStatus);
 		while (maxTry-- > 0) {
-			ssh.setTimeout (20 * 1000);
+			ssh.setTimeout (ssh_feedback_timeout);
 			result = ssh.execute(script);
 			log.println(result);
 			if (Pattern.matches(side + expectedStatus + side, result)) {
