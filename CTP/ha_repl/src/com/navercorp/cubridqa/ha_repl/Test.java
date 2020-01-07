@@ -112,7 +112,12 @@ public class Test {
 			if (rebuild_db_success == false) {
 				mlog.println("Failed to rebuild database. Abort all tests.");
 				// Make a snapshot of all hosts
-				ArrayList<String> ignoredFailures = checkCoresAndErrors(true, true);
+				try {
+					ArrayList<String> ignoredFailures = checkCoresAndErrors(true, true);
+				} catch (Exception e) {
+					mlog.println("Exception caught : " + e.getMessage());
+				}
+				
 				break;
 			}
 			haveLeapInLastDB = haveLeapInCurrTestCase;
@@ -476,7 +481,7 @@ public class Test {
 		String coreStack = null;
 		String cat;
 		ArrayList<String> failures = new ArrayList<String>();
-
+		
 		for (SSHConnect ssh : allNodeList) {
 			error = null;
 			cat = null;
