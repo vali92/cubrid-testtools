@@ -89,7 +89,6 @@ public class Test {
 					cleanAfterQuit();
 				}
 
-				this.testCompleted = true;
 				break;
 			}
 
@@ -137,6 +136,9 @@ public class Test {
 				break;
 			}
 		}
+		
+		this.testCompleted = true;
+		System.out.println ("  ++ runAll : set testCompleted = true");
 	}
 
 	public boolean isTestCompleted() {

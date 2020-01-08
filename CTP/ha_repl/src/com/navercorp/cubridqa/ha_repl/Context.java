@@ -167,12 +167,17 @@ public class Context {
 		if (this.feedback == null) {
 			String feedbackType = getProperty(ConfigParameterConstants.FEEDBACK_TYPE, "file").trim();
 			if (feedbackType.equalsIgnoreCase("file")) {
+				System.out.println ("  ++ getFeedback : type: file");
 				this.feedback = new FeedbackFile(this);
 			} else if (feedbackType.equalsIgnoreCase("database")) {
+				System.out.println ("  ++ getFeedback : type: DB");
 				this.feedback = new FeedbackDB(this);
 			} else {
+				System.out.println ("  ++ getFeedback : type: null");
 				this.feedback = new FeedbackNull(this);
 			}
+			
+			System.out.println ("  ++ getFeedback : build OK");
 		}
 		return this.feedback;
 	}
