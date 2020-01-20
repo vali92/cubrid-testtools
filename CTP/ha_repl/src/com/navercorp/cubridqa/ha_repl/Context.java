@@ -144,14 +144,14 @@ public class Context {
 		}
 		
 		try {
-			haCreatedbSSHFeedbackTimeout = Integer.parseInt(getProperty(ConfigParameterConstants.HA_CREATEDB_SSH_FEEDBACK_TIMEOUT));
+			haCreatedbSSHFeedbackTimeout = 1000 * Integer.parseInt(getProperty(ConfigParameterConstants.HA_CREATEDB_SSH_FEEDBACK_TIMEOUT));
 		} catch (Exception e) {
 			// don't stop
 			haCreatedbSSHFeedbackTimeout = 100 * 1000;
 		}
 		
 		try {
-			haWaitdbSSHFeedbackTimeout = Integer.parseInt(getProperty(ConfigParameterConstants.HA_WAITDB_SSH_FEEDBACK_TIMEOUT));
+			haWaitdbSSHFeedbackTimeout = 1000 * Integer.parseInt(getProperty(ConfigParameterConstants.HA_WAITDB_SSH_FEEDBACK_TIMEOUT));
 		} catch (Exception e) {
 			// don't stop
 			haWaitdbSSHFeedbackTimeout = 100 * 1000;
