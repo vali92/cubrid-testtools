@@ -36,6 +36,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.navercorp.cubridqa.shell.service.ShellService;
+import com.navercorp.cubridqa.common.Log;
 
 public class SSHConnect {
 
@@ -52,6 +53,7 @@ public class SSHConnect {
 	String title;
 	String serviceProtocol;
 	boolean enableDebug;
+	Log mlog;
 	
 	long outputTimeout;
 
@@ -77,6 +79,7 @@ public class SSHConnect {
 		this.serviceProtocol = serviceProtocol;
 		this.enableDebug = false;
 		outputTimeout = 100 * 1000;
+		mlog = null;
 	}
 
 	public String toString() {
@@ -118,7 +121,9 @@ public class SSHConnect {
 	}
 
 	public String execute(String scripts, boolean pureWindows) throws Exception {
-		System.out.println("     ++++SSHConnect: execute enableDebug:" + enableDebug);
+		if (mlog != null) {
+			mlog.println("     ++++SSHConnect: execute enableDebug:" + enableDebug);
+		}
 		if (serviceProtocol.equals(SERVICE_TYPE_RMI)) {
 			ShellService srv = null;
 			String url = "rmi://" + host + ":" + port + "/shellService";
@@ -153,6 +158,7 @@ public class SSHConnect {
 
 		int len = 0;
 		int available = 0;
+		boolean isTimeout = false;
 		
 		while (true) {
 			
@@ -161,15 +167,16 @@ public class SSHConnect {
 
 			while ((available = in.available ()) == 0) {
 				if (System.currentTimeMillis () - startTime > outputTimeout) {
-					if (this.enableDebug) {
-						System.out.println ("     ++++SSHConnect: ChannelExec timeout !");
+					if (this.enableDebug && mlog != null) {
+						mlog.println ("     ++++SSHConnect: ChannelExec timeout !");
 					}
 					stop = true;
+					isTimeout = true;
 					break;
 				}
 				if (exec.isClosed ()) {
-					if (this.enableDebug) {
-						System.out.println ("     ++++SSHConnect: ChannelExec closed !");
+					if (this.enableDebug && mlog != null) {
+						mlog.println ("     ++++SSHConnect: ChannelExec closed !");
 					}
 					stop = true;
 					break;
@@ -183,14 +190,14 @@ public class SSHConnect {
 			
 			if (len <= 0)
 			{
-				if (this.enableDebug) {
-					System.out.println ("     ++++SSHConnect: read len =" + len);
+				if (this.enableDebug && mlog != null) {
+					mlog.println ("     ++++SSHConnect: read len =" + len);
 				}
 				break;
 			}
-			if (this.enableDebug) {
+			if (this.enableDebug && mlog != null) {
 				String byteString = new String (b);
-				System.out.println ("     ++++SSHConnect: available bytes: " + available + " read :" + len);
+				mlog.println ("     ++++SSHConnect: available bytes: " + available + " read :" + len);
 			}
 			out.write(b, 0, len);
 			if (out.toString().indexOf(ScriptInput.COMP_FLAG) > 0) {
@@ -198,8 +205,8 @@ public class SSHConnect {
 			}
 			
 			if (exec.isClosed ()) {
-				if (this.enableDebug) {
-					System.out.println ("     ++++SSHConnect: ChannelExec closed !");
+				if (this.enableDebug && mlog != null) {
+					mlog.println ("     ++++SSHConnect: ChannelExec closed !");
 				}
 				break;
 			}
@@ -207,6 +214,10 @@ public class SSHConnect {
 		}
 
 		exec.disconnect();
+		
+		if (isTimeout) {
+			throw new Exception("SSHConnect: ChannelExec timeout");
+		}
 
 		return extractOutput(out.toString());
 	}
@@ -280,6 +291,9 @@ public class SSHConnect {
 			}
 		}
 		System.out.println("fail to connect and wait to start");
+		if (mlog != null){
+			mlog.println("fail to connect and wait to start");
+		}
 		wait(scripts, kw);
 	}
 
@@ -318,8 +332,9 @@ public class SSHConnect {
 		return pwd;
 	}
 	
-	public void setEnableDebug(boolean debug) {
+	public void setEnableDebug(boolean debug, Log log) {
 		this.enableDebug = debug;
+		this.mlog = log;
 	}
 	
 	public void setTimeout (long timeout) {

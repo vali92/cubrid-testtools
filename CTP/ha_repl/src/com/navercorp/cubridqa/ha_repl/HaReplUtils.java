@@ -177,7 +177,7 @@ public class HaReplUtils {
 		script = new GeneralScriptInput(s.toString());
 
 		SSHConnect master = hostManager.getHost("master");
-		master.setEnableDebug (enableDebug);
+		master.setEnableDebug (enableDebug, log);
 		master.setTimeout (haCreatedbSSHFeedbackTimeout);
 		log.println("------------ MASTER : CREATE DATABASE -----------------");
 
@@ -194,7 +194,7 @@ public class HaReplUtils {
 		ArrayList<SSHConnect> slaveAndReplicaList = hostManager.getAllSlaveAndReplicaList();
 		for (SSHConnect ssh : slaveAndReplicaList) {
 			log.println("------------ SLAVE/REPLICA : CREATE DATABASE -----------------");
-			ssh.setEnableDebug (enableDebug);
+			ssh.setEnableDebug (enableDebug, log);
 			ssh.setTimeout (haCreatedbSSHFeedbackTimeout);
 			result = ssh.execute(script);
 			log.println(result);
