@@ -30,6 +30,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
+import java.sql.Timestamp;
 
 public class Log {
 
@@ -39,6 +41,8 @@ public class Log {
 	String filePath;
 
 	boolean echo = false;
+	
+	boolean useTimestamp = false;
 
 	public Log(String fileName, boolean echo) {
 		this(fileName, echo, false);
@@ -90,6 +94,14 @@ public class Log {
 	public void println(String msg, boolean newLine) {
 		if (msg == null)
 			return;
+		
+		if (useTimestamp) {
+			Date date= new Date();
+			long time = date.getTime();
+			Timestamp ts = new Timestamp(time);
+			msg = ts.toString () + msg;
+		}
+		
 		if (echo) {
 			if (newLine) {
 				System.out.println(msg);
@@ -118,6 +130,10 @@ public class Log {
 
 	public String getFilePath() {
 		return filePath;
+	}
+	
+	public void setUseTimestamp (boolean use) {
+		this.useTimestamp = use; 
 	}
 
 	public void close() {

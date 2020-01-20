@@ -68,6 +68,7 @@ public class Test {
 		this.hostManager = new InstanceManager(context, envId);
 
 		this.mlog = new Log(CommonUtils.concatFile(context.getCurrentLogDir(), "test_" + envId + ".log"), false, context.isContinueMode());
+		this.mlog.setUseTimestamp (true);
 		this.finishedLog = new Log(CommonUtils.concatFile(context.getCurrentLogDir(), "dispatch_tc_FIN_" + envId + ".txt"), false, context.isContinueMode());
 		this.commonReader = new CommonReader(CommonUtils.concatFile(com.navercorp.cubridqa.common.Constants.ENV_CTP_HOME + "/ha_repl/lib", "common.inc"));
 	}
