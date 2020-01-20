@@ -154,6 +154,9 @@ public class SSHConnect {
 		byte[] b = new byte[1024];
 
 		exec.setCommand(scripts);
+		if (this.enableDebug && mlog != null) {
+			mlog.println ("     ++++++++ SSHConnect scripts: \n" + scripts);
+		}		
 		exec.connect();
 
 		int len = 0;
@@ -198,6 +201,7 @@ public class SSHConnect {
 			if (this.enableDebug && mlog != null) {
 				String byteString = new String (b);
 				mlog.println ("     ++++SSHConnect: available bytes: " + available + " read :" + len);
+				mlog.println ("     ++++++++ SSHConnect: Content :\n" + byteString);
 			}
 			out.write(b, 0, len);
 			if (out.toString().indexOf(ScriptInput.COMP_FLAG) > 0) {
