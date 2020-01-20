@@ -71,7 +71,18 @@ public class Test {
 		this.finishedLog = new Log(CommonUtils.concatFile(context.getCurrentLogDir(), "dispatch_tc_FIN_" + envId + ".txt"), false, context.isContinueMode());
 		this.commonReader = new CommonReader(CommonUtils.concatFile(com.navercorp.cubridqa.common.Constants.ENV_CTP_HOME + "/ha_repl/lib", "common.inc"));
 	}
-
+	
+	private void saveCUBRIDLogs () {
+		ArrayList<SSHConnect> allNodeList = hostManager.getAllNodeList();
+		try {
+			for (SSHConnect ssh : allNodeList) {
+				HaReplUtils.backupLogs ("START_OK_", context, ssh, mlog);
+			}
+		} catch (Exception e) {
+			mlog.println("got error when saveCUBRIDLogs: " + e.getMessage());
+		}
+	}	
+	
 	public void runAll() {
 		Dispatch dispatch = Dispatch.getInstance();
 		this.testCompleted = false;
@@ -139,6 +150,8 @@ public class Test {
 		
 		this.testCompleted = true;
 		System.out.println ("  ++ runAll : set testCompleted = true");
+		
+		saveCUBRIDLogs ();
 	}
 
 	public boolean isTestCompleted() {
@@ -297,7 +310,7 @@ public class Test {
 		boolean backupYn = failResolveMode == Constants.HA_SYNC_FAILURE_RESOLVE_MODE_CONTINUE;
 
 		boolean testcasePassed = verifyResults(logFilename, backupYn);  //hasCore has been updated
-		if (testcasePassed) {
+		if (!testcasePassed) {
 			context.incFailedTest ();
 		}
 
@@ -841,6 +854,7 @@ public class Test {
 		}
 		return resultList;
 	}
+	
 
 	private String executeScript(SSHConnect ssh, boolean isSQL, boolean isCMD, String stmt, boolean isTest) throws Exception {
 

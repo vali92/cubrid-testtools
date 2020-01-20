@@ -70,9 +70,9 @@ public class HaReplUtils {
 		return script;
 	}
 	
-	private static void backupLogs (Context context, SSHConnect ssh, Log log) {
+	public static void backupLogs (String prefix, Context context, SSHConnect ssh, Log log) {
 		log.println("------------ Backup logs for host : " + ssh.getHost ());
-		String cat = "START_FAIL_" + context.getStartDBFailCount ();
+		String cat = prefix + context.getStartDBFailCount ();
 		String hitHost = ssh.getHost().trim();
 		String resultId = getResultId(context.getFeedback().getTaskId(), hitHost, cat, context.getBuildId());
 		
@@ -140,7 +140,7 @@ public class HaReplUtils {
 		GeneralScriptInput script = new GeneralScriptInput(s.toString());
 		for (SSHConnect ssh : allHosts) {
 			if (context.getStartDBFailCount () > 0) {
-				backupLogs (context, ssh, log);
+				backupLogs ("START_FAIL_", context, ssh, log);
 			}
 			ssh.execute(script);
 			log.println("------------ CLEANUP DONE for host : " + ssh.getHost ());
