@@ -99,7 +99,7 @@ public class Log {
 			Date date= new Date();
 			long time = date.getTime();
 			Timestamp ts = new Timestamp(time);
-			msg = ts.toString () + msg;
+			msg = ts.toString () + " : " + msg;
 		}
 		
 		if (echo) {
