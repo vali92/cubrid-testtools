@@ -155,7 +155,7 @@ public class SSHConnect {
 
 		exec.setCommand(scripts);
 		if (this.enableDebug && mlog != null) {
-			mlog.println ("     ++++++++ SSHConnect scripts: \n" + scripts);
+			mlog.println ("     ++++++++ SSHConnect timeout : " + outputTimeout + " , scripts: \n" + scripts);
 		}		
 		exec.connect();
 

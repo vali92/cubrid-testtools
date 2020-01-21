@@ -109,6 +109,7 @@ public class Context {
 				haSyncDetectTimeoutInMs = com.navercorp.cubridqa.ha_repl.common.Constants.HA_SYNC_DETECT_TIMEOUT_IN_MS_DEFAULT;
 			}
 		} catch (Exception e) {
+			System.out.println( "    *** Exception haSyncDetectTimeoutInMs :" + e.getMessage());
 			haSyncDetectTimeoutInMs = com.navercorp.cubridqa.ha_repl.common.Constants.HA_SYNC_DETECT_TIMEOUT_IN_MS_DEFAULT;
 		}		
 		
@@ -133,6 +134,7 @@ public class Context {
 			stopAfterCoreCount = Integer.parseInt(getProperty(ConfigParameterConstants.STOP_AFTER_CORE_COUNT));
 		} catch (Exception e) {
 			// don't stop
+			System.out.println( "    *** Exception stopAfterCoreCount :" + e.getMessage());
 			stopAfterCoreCount = 1000000;
 		}
 		
@@ -140,6 +142,7 @@ public class Context {
 			stopAfterFailedCount = Integer.parseInt(getProperty(ConfigParameterConstants.STOP_AFTER_FAILED_COUNT));
 		} catch (Exception e) {
 			// don't stop
+			System.out.println( "    *** Exception stopAfterFailedCount :" + e.getMessage());
 			stopAfterFailedCount = 1000000;
 		}
 		
@@ -147,13 +150,15 @@ public class Context {
 			haCreatedbSSHFeedbackTimeout = 1000 * Integer.parseInt(getProperty(ConfigParameterConstants.HA_CREATEDB_SSH_FEEDBACK_TIMEOUT));
 		} catch (Exception e) {
 			// don't stop
-			haCreatedbSSHFeedbackTimeout = 100 * 1000;
+			System.out.println( "    *** Exception haCreatedbSSHFeedbackTimeout :" + e.getMessage());
+			haCreatedbSSHFeedbackTimeout = 200 * 1000;
 		}
 		
 		try {
 			haWaitdbSSHFeedbackTimeout = 1000 * Integer.parseInt(getProperty(ConfigParameterConstants.HA_WAITDB_SSH_FEEDBACK_TIMEOUT));
 		} catch (Exception e) {
 			// don't stop
+			System.out.println( "    *** Exception haWaitdbSSHFeedbackTimeout :" + e.getMessage());
 			haWaitdbSSHFeedbackTimeout = 100 * 1000;
 		}		
 	}
