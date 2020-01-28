@@ -48,6 +48,8 @@ public class DeployNode {
 		this.context = context;
 		this.hostManager = instanceManager;
 		this.log = new Log(context.getCurrentLogDir() + "/deploy_" + instanceManager.getEnvId() + ".log", true, true);
+		this.log.setUseTimestamp (true);
+		ssh.setEnableDebug (true, this.log);
 	}
 
 	public void deploy() throws Exception {
