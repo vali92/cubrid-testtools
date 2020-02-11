@@ -78,7 +78,7 @@ public class SSHConnect {
 		this.pwd = pwd;
 		this.serviceProtocol = serviceProtocol;
 		this.enableDebug = false;
-		outputTimeout = 10 * 3600 * 1000;
+		outputTimeout = 2 * 3600 * 1000;
 		mlog = null;
 	}
 
