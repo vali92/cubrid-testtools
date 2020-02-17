@@ -113,8 +113,7 @@ public class Test {
 				break;
 			}
 
-            System.out.println("TESCASES HERE: ############" + testCase);
-
+            workerLog.println("[TESTCASE TO CHECK HERE] " + testCase);
 			consoleOutput = "";
 			this.testCaseFullName = testCase;
 			p = testCase.lastIndexOf("cases");
