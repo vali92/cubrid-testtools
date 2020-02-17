@@ -107,6 +107,7 @@ public class Test {
 				}
 			}
 
+			System.out.println("TESCASES HERE: ############" + testCase);
 			testCase = Dispatch.getInstance().nextTestFile();
 			if (testCase == null) {
 				break;
