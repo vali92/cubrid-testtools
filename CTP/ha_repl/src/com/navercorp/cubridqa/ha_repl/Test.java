@@ -244,6 +244,7 @@ public class Test {
 								log(info);
 
 
+								this.userInfo.append("[DEBUG] " + logFilename + ".master.slave1.diff_1.temp").append(Constants.LINE_SEPARATOR);
 								File file = new File(logFilename + ".master.slave1.diff_1.temp" );
 
 								BufferedReader br = new BufferedReader(new FileReader(file));
