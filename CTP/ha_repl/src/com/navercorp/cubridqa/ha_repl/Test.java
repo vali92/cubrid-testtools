@@ -240,7 +240,7 @@ public class Test {
 								String info = "[NOK]" + ": [" + tr.lineNum + "]" + checkSQLs.get(i);
 								addFail(info);
 								log(info);
-								this.userInfo.append(info).append(Constants.LINE_SEPARATOR);
+								this.userInfo.append("[NOK INFO] " + info).append(Constants.LINE_SEPARATOR);
 							}
 						} catch (SyncException e) {
 							String info = "[NOK]" + ": [" + tr.lineNum + "]" + checkSQLs.get(i) + "(FAIL TO SYNC. BREAK!!!)";
@@ -402,6 +402,8 @@ public class Test {
 	private boolean checkResult(ArrayList<String> actualResultList, String expectResult) {
 		for (String result : actualResultList) {
 			if (!result.equals(expectResult)) {
+				this.userInfo.append("RESULT: " + result).append(Constants.LINE_SEPARATOR);
+				this.userInfo.append("EXPECTED RESULT: " + expectResult).append(Constants.LINE_SEPARATOR);
 				return false;
 			}
 		}
