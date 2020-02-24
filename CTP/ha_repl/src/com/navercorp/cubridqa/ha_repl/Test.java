@@ -401,6 +401,8 @@ public class Test {
 	private boolean checkResult(ArrayList<String> actualResultList, String expectResult) {
 		for (String result : actualResultList) {
 			if (!result.equals(expectResult)) {
+				this.userInfo.append("EXPECTED:" + result).append(Constants.LINE_SEPARATOR);
+				this.userInfo.append("BUT FOUND:" + expectResult).append(Constants.LINE_SEPARATOR);
 				return false;
 			}
 		}
@@ -513,7 +515,7 @@ public class Test {
 				}
 			}
 
-			failures.add("[NOK] " + error);			
+			failures.add("[NOK] " + error);
 		}
 		return failures;
 	}
