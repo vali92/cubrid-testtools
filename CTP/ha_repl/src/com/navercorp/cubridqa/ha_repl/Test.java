@@ -24,7 +24,9 @@
  */
 package com.navercorp.cubridqa.ha_repl;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -240,7 +242,19 @@ public class Test {
 								String info = "[NOK]" + ": [" + tr.lineNum + "]" + checkSQLs.get(i);
 								addFail(info);
 								log(info);
-								this.userInfo.append("[NOK INFO] " + info).append(Constants.LINE_SEPARATOR);
+
+
+								File file = new File(logFilename + ".master.slave1.diff_1.temp" );
+
+								BufferedReader br = new BufferedReader(new FileReader(file));
+
+								String st;
+								while ((st = br.readLine()) != null)
+									this.userInfo.append("[DIFF FOUND] " + st).append(Constants.LINE_SEPARATOR);
+
+
+
+
 							}
 						} catch (SyncException e) {
 							String info = "[NOK]" + ": [" + tr.lineNum + "]" + checkSQLs.get(i) + "(FAIL TO SYNC. BREAK!!!)";
@@ -382,7 +396,7 @@ public class Test {
 					withPatch = false;
 				}
 			}
-			
+
 			if(withPatch) {
 				return true;
 			}
