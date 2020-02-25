@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.Scanner;
 
 import com.navercorp.cubridqa.common.CommonUtils;
 import com.navercorp.cubridqa.common.Log;
@@ -247,15 +248,12 @@ public class Test {
 								this.userInfo.append("[DEBUG] " + logFilename + ".master.slave1.diff_1.temp").append(Constants.LINE_SEPARATOR);
 								File file = new File(logFilename + ".master.slave1.diff_1.temp" );
 
-								BufferedReader br = new BufferedReader(new FileReader(file));
-
-								String st;
-								while ((st = br.readLine()) != null)
-									this.userInfo.append("[DIFF FOUND] " + st).append(Constants.LINE_SEPARATOR);
-
-
-
-
+								Scanner scnr = new Scanner(file);
+								
+								while(scnr.hasNextLine()){
+									String line = scnr.nextLine();
+									this.userInfo.append("[DIFF FOUND] " + line).append(Constants.LINE_SEPARATOR);
+								}
 							}
 						} catch (SyncException e) {
 							String info = "[NOK]" + ": [" + tr.lineNum + "]" + checkSQLs.get(i) + "(FAIL TO SYNC. BREAK!!!)";
