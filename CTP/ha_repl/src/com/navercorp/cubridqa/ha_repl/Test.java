@@ -33,6 +33,7 @@ import com.navercorp.cubridqa.shell.common.SSHConnect;
 import com.navercorp.cubridqa.shell.common.SyncException;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -343,20 +344,6 @@ public class Test {
                                 String info = "[NOK]" + ": [" + tr.lineNum + "]" + checkSQLs.get(i);
                                 addFail(info);
                                 log(info);
-
-                                try {
-                                    this.userInfo.append("[DEBUG] " + logFilename + ".master.slave1.diff_1.temp").append(Constants.LINE_SEPARATOR);
-                                    File file = new File(logFilename + ".master.slave1.diff_1.temp");
-
-                                    Scanner scnr = new Scanner(file);
-
-                                    while (scnr.hasNextLine()) {
-                                        String line = scnr.nextLine();
-                                        this.userInfo.append("[DIFF FOUND] " + line).append(Constants.LINE_SEPARATOR);
-                                    }
-                                }catch (Exception e){
-                                    this.userInfo.append("[DIFF FOUND] " + e).append(Constants.LINE_SEPARATOR);
-                                }
                             }
                         } catch (SyncException e) {
                             String info = "[NOK]" + ": [" + tr.lineNum + "]" + checkSQLs.get(i) + "(FAIL TO SYNC. BREAK!!!)";
@@ -384,6 +371,25 @@ public class Test {
         boolean backupYn = failResolveMode == Constants.HA_SYNC_FAILURE_RESOLVE_MODE_CONTINUE;
 
         boolean testcasePassed = verifyResults(logFilename, backupYn);  //hasCore has been updated
+
+        if(!testcasePassed){
+
+            this.userInfo.append("[DEBUG] " + logFilename + ".master.slave1.diff_1.temp").append(Constants.LINE_SEPARATOR);
+            File file = new File(logFilename + ".master.slave1.diff_1.temp");
+
+            Scanner scnr = null;
+            try {
+                scnr = new Scanner(file);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            while (scnr.hasNextLine()) {
+                String line = scnr.nextLine();
+                this.userInfo.append("[DIFF FOUND] " + line).append(Constants.LINE_SEPARATOR);
+            }
+
+        }
 
         if (context.isFailureBackup() && hasCore == false && testcasePassed == false) {
             String backupDir = collectMoreInfoWhenFail();
