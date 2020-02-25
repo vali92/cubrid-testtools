@@ -373,8 +373,8 @@ public class Test {
         boolean testcasePassed = verifyResults(logFilename, backupYn);  //hasCore has been updated
 
         if(!testcasePassed){
-
-            this.userInfo.append("[DEBUG] " + logFilename + ".master.slave1.diff_1.temp").append(Constants.LINE_SEPARATOR);
+            this.userInfo.append(Constants.LINE_SEPARATOR);
+            this.userInfo.append("[DIFF FOUND] " + logFilename + ".master.slave1.diff_1.temp").append(Constants.LINE_SEPARATOR);
             File file = new File(logFilename + ".master.slave1.diff_1.temp");
 
             Scanner scnr = null;
@@ -386,7 +386,7 @@ public class Test {
 
             while (scnr.hasNextLine()) {
                 String line = scnr.nextLine();
-                this.userInfo.append("[DIFF FOUND] " + line).append(Constants.LINE_SEPARATOR);
+                this.userInfo.append(line).append(Constants.LINE_SEPARATOR);
             }
 
         }
